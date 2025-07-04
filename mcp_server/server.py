@@ -37,6 +37,8 @@ def nl_to_mcp_tool_prompt(natural_language_question: str) -> str:
     - where_conditions (array of strings, optional): SQL WHERE clause conditions (e.g., ["c_custkey = 1", "o_totalprice > 100.00"]).
     - order_by (string, optional): Column to order by (e.g., "c_name ASC", "o_orderdate DESC").
     - limit (integer, optional): Maximum number of rows to return.
+    - join_tables (array of strings, optional): List of tables to join with (e.g., ['orders', 'lineitem']).
+    - join_conditions (array of strings, optional): List of SQL JOIN conditions (e.g., ['customer.c_custkey = orders.o_custkey']).
 
     Convert the following question into a JSON object for the "query_database" tool.
     Ensure the output is ONLY the JSON object and nothing else.
@@ -48,8 +50,10 @@ def nl_to_mcp_tool_prompt(natural_language_question: str) -> str:
       "tool_name": "query_database",
       "args": {{
         "table_name": "customer",
-        "select_columns": ["c_name", "c_phone"],
-        "where_conditions": ["c_nationkey = 1"],
+        "select_columns": ["c_name", "o_orderkey"],
+        "join_tables": ["orders"],
+        "join_conditions": ["customer.c_custkey = orders.o_custkey"],
+        "where_conditions": ["c_name = 'Stephanie White'"],
         "limit": 10
       }}
     }}
@@ -63,6 +67,8 @@ def nl_to_mcp_tool_prompt(natural_language_question: str) -> str:
     - where_conditions (array of strings, optional): SQL WHERE clause conditions (e.g., ["c_custkey = 1", "o_totalprice > 100.00"]).
     - order_by (string, optional): Column to order by (e.g., "c_name ASC", "o_orderdate DESC").
     - limit (integer, optional): Maximum number of rows to return.
+    - join_tables (array of strings, optional): List of tables to join with (e.g., ['orders', 'lineitem']).
+    - join_conditions (array of strings, optional): List of SQL JOIN conditions (e.g., ['customer.c_custkey = orders.o_custkey']).
 
     Convert the following question into a JSON object for the "query_database" tool.
     Ensure the output is ONLY the JSON object and nothing else.
@@ -74,8 +80,10 @@ def nl_to_mcp_tool_prompt(natural_language_question: str) -> str:
       "tool_name": "query_database",
       "args": {{
         "table_name": "customer",
-        "select_columns": ["c_name", "c_phone"],
-        "where_conditions": ["c_nationkey = 1"],
+        "select_columns": ["c_name", "o_orderkey"],
+        "join_tables": ["orders"],
+        "join_conditions": ["customer.c_custkey = orders.o_custkey"],
+        "where_conditions": ["c_name = 'Stephanie White'"],
         "limit": 10
       }}
     }}
@@ -100,7 +108,7 @@ def summarize_query_results_prompt(query_results: str) -> str:
 # Register the database query tool
 @mcp.tool(name="query_database")
 
-def query_database_tool(table_name: str, select_columns: list = None, where_conditions: list = None, order_by: str = None, limit: int = None) -> dict:
+def query_database_tool(table_name: str, select_columns: list = None, where_conditions: list = None, order_by: str = None, limit: int = None, join_tables: list = None, join_conditions: list = None) -> dict:
     """Executes a SQL SELECT query on the TPC-H database and returns the results.
 
     Args:
@@ -118,7 +126,9 @@ def query_database_tool(table_name: str, select_columns: list = None, where_cond
         "select_columns": select_columns if select_columns is not None else ["*"],
         "where_conditions": where_conditions if where_conditions is not None else [],
         "order_by": order_by,
-        "limit": limit
+        "limit": limit,
+        "join_tables": join_tables if join_tables is not None else [],
+        "join_conditions": join_conditions if join_conditions is not None else []
     }
     return query_executor.execute_query_prompt(prompt_arguments)
 

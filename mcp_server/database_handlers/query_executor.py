@@ -13,6 +13,8 @@ def execute_query_prompt(prompt_arguments: dict) -> dict:
     where_conditions = prompt_arguments.get("where_conditions", [])
     order_by = prompt_arguments.get("order_by")
     limit = prompt_arguments.get("limit")
+    join_tables = prompt_arguments.get("join_tables", [])
+    join_conditions = prompt_arguments.get("join_conditions", [])
 
     if not table_name:
         return {"status": "error", "message": "table_name is required."}
@@ -29,6 +31,10 @@ def execute_query_prompt(prompt_arguments: dict) -> dict:
         # Build the SQL query dynamically and safely
         columns_str = ", ".join(select_columns)
         sql = f"SELECT {columns_str} FROM {table_name}"
+
+        for i, join_table in enumerate(join_tables):
+            if i < len(join_conditions):
+                sql += f" JOIN {join_table} ON {join_conditions[i]}"
 
         params = []
         if where_conditions:
