@@ -1,0 +1,12 @@
+Flask
+Flask-SQLAlchemy
+psycopg2-binary
+python-dotenv
+fastmcp
+fastapi
+uvicorn
+sqlalchemy
+gradio
+httpx
+Faker
+google-genai

@@ -15,6 +15,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copy requirements.txt and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip show fastmcp
 
 # Stage 2: Final image
 FROM python:3.10-slim
@@ -28,8 +29,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Set the working directory
 WORKDIR /app
 
-# Copy your application code
-COPY tpch_api .
+ENV PYTHONPATH=/app
+COPY mcp_server /app/mcp_server
+COPY data_generation /app/data_generation
 
-# Command to run your application
-CMD ["python", "run.py"]
+# Expose the port if your MCP server uses HTTP/WebSockets
+EXPOSE 8001
+
+CMD ["python", "mcp_server/server.py"]
